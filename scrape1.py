@@ -4,11 +4,11 @@ import cookielib
 from bs4 import BeautifulSoup
 class FetchUrl():
 
-	def CallFunctions():
-		for i in range(1,51)
-		url = x.ConstructUrl(i)
-		retsoup = x.OpenUrl(url)
-		x.ScrapeData(retsoup)
+	def CallFunctions(self):
+		for i in range(1,6):
+			url = x.ConstructUrl(i)
+			retsoup = x.OpenUrl(url)
+			x.ScrapeData(retsoup)
 
 
         def ConstructUrl(self,i):
@@ -20,9 +20,11 @@ class FetchUrl():
                 minsccd = raw_input('Enter the minimum Short-Circuit Current Density value,the least posiible value is 0.0: ')
                 maxsccd = raw_input('Enter the minimum Short-Circuit Current Density value,the highest possible value is 397.04: ')
                 noofresults = raw_input('please enter the number of search results you want: ')
+		i = str(i)
 		constructedurl = 'page='+i+'&'+'pce_min='+minpce+'&pce_max='+maxpce+'&voc_min='+minocv+'&voc_max='+maxocv+'&jsc_min='+minsccd+'&jsc_max='+maxsccd+'&e_homo_alpha_min=&e_homo_alpha_max=&e_lumo_alpha_min=&e_lumo_alpha_max=&e_gap_alpha_min=&e_gap_alpha_max=&smiles_str=&stoich_str=&mass_min=&mass_max=&results_number='+noofresults+'&search=Search'
-			      baseurl = 'https://cepdb.molecularspace.org/?'
+		baseurl = 'https://cepdb.molecularspace.org/?'
                 finalurl = baseurl + constructedurl
+		print finalurl
 		return finalurl
 			
 
@@ -111,12 +113,14 @@ class FetchUrl():
 			#print ocv
 			#print sccd
 			file = open('data.txt','a+') 
-                        file.write( homo + "," + lumo + "," + ev + "," + pce + "," + ocv + "," + sccd + "\n" )
+                        encoded_str = homo + "," + lumo + "," + ev + "," + pce + "," + ocv + "," + sccd + "\n" 
+			decoded_str = encoded_str.decode('utf-8')
+			file.write(decoded_str)
 				
 		file.close()
 
 
 x = FetchUrl()
-x.callFunctions()
+x.CallFunctions()
 
 
