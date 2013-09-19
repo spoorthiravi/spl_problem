@@ -36,7 +36,6 @@ class FetchUrl():
                 br.set_cookiejar(cj)
 
                 br.set_handle_equiv(True)
-                br.set_handle_gzip(True)
                 br.set_handle_redirect(True)
                 br.set_handle_referer(True)
                 br.set_handle_robots(False)
@@ -72,7 +71,6 @@ class FetchUrl():
                 	br.set_cookiejar(cj)
 
                 	br.set_handle_equiv(True)
-                	br.set_handle_gzip(True)
                 	br.set_handle_redirect(True)
                 	br.set_handle_referer(True)
                 	br.set_handle_robots(False)
@@ -106,17 +104,15 @@ class FetchUrl():
 			#print lumo
 			#print ev
 			td = tables[1].find_all('td')
-                        pce = td[0].text
-                        ocv = td[1].text
-                        sccd = td[2].text
-			#print pce
-			#print ocv
-			#print sccd
+			pce = td[0].text
+			ocv = td[1].text
+			sccd = td[2].text
+
 			file = open('data.txt','a+') 
-                        encoded_str = homo + "," + lumo + "," + ev + "," + pce + "," + ocv + "," + sccd + "\n" 
-			decoded_str = encoded_str.decode('utf-8')
-			file.write(decoded_str)
-				
+			unencoded_string = homo + "," + lumo + "," + ev + "," + pce + "," + ocv + "," + sccd + "\n" 
+			encoded_str = unicode.encode(unencoded_string, errors='ignore')
+			file.write(encoded_str)
+	
 		file.close()
 
 
