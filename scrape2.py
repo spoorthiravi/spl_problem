@@ -1,0 +1,117 @@
+import urllib2
+import mechanize
+import cookielib
+from bs4 import BeautifulSoup
+import math
+class FetchUrl():
+
+	def CallFunctions(self):
+		result = x.ConstructUrl()
+		for i in range(1,51):
+			url = x.GetUrl(i,result['minpce'],result['maxpce'],result['minocv'],result['maxocv'],result['minsccd'],result['maxsccd'],result['noofresults'])
+			retsoup = x.OpenUrl(url)
+			x.ScrapeData(retsoup)
+			print i
+			i = i+1
+
+
+        def ConstructUrl(self):
+                print 'Please enter the required minimum and maximum values\n'
+                minpce = raw_input('Enter the minimum PCE value,the least posiible value is 0.0: ')
+                maxpce = raw_input('Enter the maximum PCE value,the highest possible value is 11.3: ')
+                minocv = raw_input('Enter the minimum Open-Circuit Voltage value,the least posiible value is 0.0: ')
+                maxocv = raw_input('Enter the maximum Open-Circuit Voltage value,the highest possible value is 2.18: ')
+                minsccd = raw_input('Enter the minimum Short-Circuit Current Density value,the least posiible value is 0.0: ')
+                maxsccd = raw_input('Enter the minimum Short-Circuit Current Density value,the highest possible value is 397.04: ')
+                noofresults = raw_input('please enter the number of search results you want: ')
+		return {'minpce':minpce, 'maxpce':maxpce, 'minocv':minocv, 'maxocv':maxocv, 'minsccd':minsccd,'maxsccd':maxsccd,'noofresults':noofresults}
+
+	def GetUrl(self,i,minpce,maxpce,minocv,maxocv,minsccd,maxsccd,noofresults):
+		i = str(i)
+		constructedurl = 'page='+i+'&'+'pce_min='+minpce+'&pce_max='+maxpce+'&voc_min='+minocv+'&voc_max='+maxocv+'&jsc_min='+minsccd+'&jsc_max='+maxsccd+'&e_homo_alpha_min=&e_homo_alpha_max=&e_lumo_alpha_min=&e_lumo_alpha_max=&e_gap_alpha_min=&e_gap_alpha_max=&smiles_str=&stoich_str=&mass_min=&mass_max=&results_number='+noofresults+'&search=Search'
+		baseurl = 'https://cepdb.molecularspace.org/?'
+                finalurl = baseurl + constructedurl
+		return finalurl
+			
+
+        def OpenUrl(self, url):
+                br = mechanize.Browser()
+		#cookie jar
+                cj = cookielib.LWPCookieJar()
+                br.set_cookiejar(cj)
+
+                br.set_handle_equiv(True)
+                br.set_handle_redirect(True)
+                br.set_handle_referer(True)
+                br.set_handle_robots(False)
+
+                #Follows refresh 0 but not hangs on refresh > 0
+                br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+
+                br.open('https://cepdb.molecularspace.org/accounts/login')
+                br.select_form(nr=0) #check yoursite forms to match the correct number
+                br['login']='spoorthiravi' #use the proper input type=text name
+                br['password']='Lipstick21' #use the proper input type=password name
+                br.submit()
+                response = br.open(url)
+                soup = BeautifulSoup(response.get_data())
+                return soup
+
+	def ScrapeData(self,soup):
+		links = []
+		baseurl = 'https://cepdb.molecularspace.org'
+		for tr in soup.find_all('tr'):
+			for a in tr.find_all('a'):
+				links.append(a.get('href'))
+                    		i=0
+		for link in links:
+			url = baseurl + links[i]
+			response = x.Authenticate(url)
+                        i = i+2
+                        soup1 = BeautifulSoup(response.get_data())
+			#smiles = (soup1.find(id = "smiles")).text
+			properties = soup1.find_all("table",{"class":"single-results"})
+			td = properties[0].find_all('td')
+			smiles = td[1].text
+			stoicform = td[4].text
+			mass = td[6].text
+			tables = soup1.find_all( "table", {"class":"CSSTableGenerator"} )
+			td = tables[0].find_all('td')
+			homo = td[0].text
+			lumo = td[1].text
+			ev = td[2].text
+			td = tables[1].find_all('td')
+			pce = td[0].text
+			ocv = td[1].text
+			sccd = td[2].text
+			file = open('data1.txt','a+') 
+                        unencoded_string = smiles + "," + stoicform + "," + mass+ "," + homo + "," + lumo + "," + ev + "," + pce + "," + ocv + "," + sccd + "\n"
+                        encoded_str = unicode.encode(unencoded_string, errors='ignore')
+                        file.write(encoded_str)
+			if i == 40:
+				break
+	
+				
+	
+
+	def Authenticate(self,url):
+		br = mechanize.Browser()
+                cj = cookielib.LWPCookieJar()
+                br.set_cookiejar(cj)
+                br.set_handle_equiv(True)
+                br.set_handle_redirect(True)
+                br.set_handle_referer(True)
+                br.set_handle_robots(False)
+                br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+		br.open('https://cepdb.molecularspace.org/accounts/login')
+                br.select_form(nr=0) #check yoursite forms to match the correct number
+                br['login']='spoorthiravi' #use the proper input type=text name
+                br['password']='Lipstick21' #use the proper input type=password name
+                br.submit()
+                response = br.open(url)
+		return response
+
+x = FetchUrl()
+x.CallFunctions()
+
+
